@@ -16,15 +16,15 @@ public class Main {
     private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     private static String songFile;
     //0 2 4 5 6 7 9
-    private static String observationFile = "src/MIDI files/firstSpecies/cp0.mid";
+    private static String observationFile = "src/MIDI files/firstSpecies/cp4.mid";
     private static final Random random = new Random();
     public static final int NOTE_ON = 0x90;
     private static String[] states = {"PU","m3","M3","P5","m6","M6","P8"};
-    //private static String[] states2 = {"PU", "m2u", "m2d", "M2u", "M2d", "m3u", "m3d", "M3u", "M3d", "P4u", "P4d", "P5u", "P5d", "m6u", "m6d", "M6u", "M6d", "m7u", "m7d", "M7u", "M7d", "P8u", "P8d"};
+    private static String[] states2 = {"PU", "m2u", "m2d", "M2u", "M2d", "m3u", "m3d", "M3u", "M3d", "P4u", "P4d", "P5u", "P5d", "m6u", "m6d", "M6u", "M6d", "m7u", "m7d", "M7u", "M7d", "P8u", "P8d"};
     static ArrayList<int[][]> songs = new ArrayList<>();
-    static ArrayList<int[][]> secondSpecies = new ArrayList<>();
-    static ArrayList<int[]> secondSpeciesHarmonic = new ArrayList<>();
-    static ArrayList<int[]> allowableIntervals = new ArrayList<>();
+//    static ArrayList<int[][]> secondSpecies = new ArrayList<>();
+//    static ArrayList<int[]> secondSpeciesHarmonic = new ArrayList<>();
+//    static ArrayList<int[]> allowableIntervals = new ArrayList<>();
     static HashMap <Integer, Integer> hmHarmonic = new HashMap <Integer,Integer>();
     static HashMap <Integer, Integer> hmMelodic = new HashMap <Integer,Integer>();
     static HashMap<Integer, String> hmObservation = new HashMap<Integer, String>();
@@ -61,31 +61,28 @@ public class Main {
         //secondSpeciesProb(transitionMatrix, emissionMatrix);
         transitionP = convertProbability(transitionMatrix, states.length, states.length);
 
+        /*
+        //for notes as observed states
         int[][] emissionMatrix = getEmissionProb1();
         System.out.println("\nEmission Probabilities: ");
         print2DArray(emissionMatrix);
         double [][] emissP = convertProbability(emissionMatrix, states.length, hmNotes.size());
+         */
+
+        // for melodic interval as observed states
+        int[][] emissionMatrix = getEmissionProb();
+        System.out.println("\nEmission Probabilities: ");
+        print2DArray(emissionMatrix);
+        double [][] emissP = convertProbability(emissionMatrix, states.length, hmMelodic.size());
 
         // observation file
         Sequence observationSeq = MidiSystem.getSequence(new File(observationFile));
-        //String[] observations = getObservations1(transposeSingle(60,midiTo2DArray(observationSeq)));
-        String[] observations = getObservations1(midiTo2DArray(observationSeq));
-        for(int i = 0;i<observations.length;i++){
-            System.out.print(observations[i]+" ");
-        }
 
-        //fake
-        //int[] statesfake = {0,1,2,3,4,5,6};
-        int[] obsfake = new int[observations.length];
-        for(int i = 0; i < observations.length;i++){
-            obsfake[i] = hmNotes.get(observations[i])+1;
-            System.out.print(obsfake[i]+" ");
-        }
-
-
-        Forward obj = new Forward();
         System.out.println("------Forward Algorithm------");
-        double final_prob = obj.compute(obsfake, states, startP, transitionP, emissP);
+
+        //comment one of these method call to calculate the forward probability
+        //double final_prob = getForwardProb_notes(observationSeq,startP, emissP);
+        double final_prob = getForwardProb_melodic(observationSeq,startP, emissP);
         System.out.println("The final probability for the given observation is  "+ final_prob);
 
 
@@ -369,6 +366,24 @@ public class Main {
         return b;
     }
 
+    /*Returns a 2D array that counts the number of times a melodic interval
+    occurs while in a harmonic state.
+     */
+    private static int[][] getEmissionProb(){
+        int[][] b = new int[states.length][hmMelodic.size()];
+        for(int i=0; i<songs.size(); i++){
+            int numNotes = songs.get(i)[0].length;
+            for(int j=1; j<numNotes; j++){
+                int harmonicInterval = Math.abs((songs.get(i)[0][j]) - (songs.get(i)[1][j]));
+                int melodicInterval = (songs.get(i)[1][j-1]) - (songs.get(i)[1][j]);
+                if(hmHarmonic.get(harmonicInterval)!=null && hmMelodic.get(melodicInterval)!=null){
+                    b[hmHarmonic.get(harmonicInterval)][hmMelodic.get(melodicInterval)]++;
+                }
+            }
+        }
+        return b;
+    }
+
     //This method is used for convert count frequency to Probability
     public static double[][] convertProbability(int [][] countMatrix,int row, int col){
         double [][] probMatrix = new double[row][col];
@@ -406,6 +421,29 @@ public class Main {
             System.out.println("");
         }
     }
+
+    /*This method takes in the sequence for the example MIDI file and
+    converts it into an array of Strings representing the sequence of
+    melodic intervals for that example's Cantus Firmus to be used in the
+    Viterbi algorithm. MODIFIED VERSION!!
+     */
+    public static int[] getObservations(int[][] observations2DArray){
+        int numNotes = 0;
+        for(int j=0; j< observations2DArray[0].length; j++){
+            if(observations2DArray[1][j]!=0){
+                numNotes++;
+            }
+        }
+        int[] observation = new int[numNotes-1];
+        for(int i=1; i<observations2DArray[0].length; i++){
+            if(observations2DArray[1][i-1]!=0 && observations2DArray[1][i]!=0){
+                int interval = (observations2DArray[1][i-1]) - (observations2DArray[1][i]);
+                observation[i-1] = hmMelodic.get(interval);
+            }
+        }
+        return observation;
+    }
+
     public static String[] getObservations1(int[][] observation){
         String[] obs = new String[observation[0].length];
         for(int i=0; i<observation[0].length; i++){
@@ -413,6 +451,36 @@ public class Main {
             obs[i] = NOTE_NAMES[note];
         }
         return obs;
+    }
+
+    public static double getForwardProb_notes(Sequence observationSeq,double [] startP,double [][] emissP){
+        // observation file
+        String[] observations = getObservations1(midiTo2DArray(observationSeq));
+        for(int i = 0;i<observations.length;i++){
+            System.out.print(observations[i]+" ");
+        }
+
+        //convert observation in string to int
+        int[] obsfake = new int[observations.length];
+        for(int i = 0; i < observations.length;i++){
+            obsfake[i] = hmNotes.get(observations[i])+1;
+            System.out.print(obsfake[i]+" ");
+        }
+
+        Forward obj = new Forward();
+        double final_prob = obj.compute(obsfake, states, startP, transitionP, emissP);
+        return final_prob;
+
+    }
+
+    public static double getForwardProb_melodic(Sequence observationSeq,double [] startP,double [][] emissP){
+        //convert observation in string to int
+        int[] observations = getObservations(midiTo2DArray(observationSeq));
+
+        Forward obj = new Forward();
+        double final_prob = obj.compute(observations, states, startP, transitionP, emissP);
+        return final_prob;
+
     }
 
 
