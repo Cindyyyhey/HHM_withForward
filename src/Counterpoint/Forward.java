@@ -2,7 +2,9 @@ package Counterpoint;
 
 // Implementation of Forward Algorithm which computes the likelihood of given input observation.
 
+import java.util.stream.IntStream;
 import static java.lang.System.*;
+
 public class Forward {
 
 //    @param obs        ->Given observation for which likelihood has to be calculated.
@@ -12,7 +14,10 @@ public class Forward {
 //    @param emiss_prob ->The emission probability assosciated with each observation.
 //    @param prob       ->The likelihood probability of the input observation sequence.
 
-    public static double compute(int obs[], int states[], double start_prob[], double trans_prob[][], double emiss_prob[][]) throws ArrayIndexOutOfBoundsException {
+    public static double compute(int obs[], String statestemp[], double start_prob[], double trans_prob[][], double emiss_prob[][]) throws ArrayIndexOutOfBoundsException {
+        //type conversion for states
+        int[] states = IntStream.range(0, statestemp.length).toArray();
+
         double forward[][] = new double[obs.length][states.length];
 
         out.println("The observation sequence - ");
@@ -32,7 +37,6 @@ public class Forward {
 
                 for (int state2 : states) {
                     forward[i][state1] += forward[i - 1][state2] * trans_prob[state2][state1];
-
                     // Forward Algorithm adds up every probability calculated, takes to the maximum.
                 }
                 forward[i][state1] *= emiss_prob[state1][obs[i] - 1];
@@ -44,7 +48,6 @@ public class Forward {
             for (int j = 0; j < states.length; j++) {
                 out.println(forward[i][j] + "");
             }
-            //out.println();
         }
 
         // Calculation of final likelihood probability.

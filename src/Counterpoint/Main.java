@@ -75,7 +75,7 @@ public class Main {
         }
 
         //fake
-        int[] statesfake = {0,1,2,3,4,5,6};
+        //int[] statesfake = {0,1,2,3,4,5,6};
         int[] obsfake = new int[observations.length];
         for(int i = 0; i < observations.length;i++){
             obsfake[i] = hmNotes.get(observations[i])+1;
@@ -85,7 +85,7 @@ public class Main {
 
         Forward obj = new Forward();
         System.out.println("------Forward Algorithm------");
-        double final_prob = obj.compute(obsfake, statesfake, startP, transitionP, emissP);
+        double final_prob = obj.compute(obsfake, states, startP, transitionP, emissP);
         System.out.println("The final probability for the given observation is  "+ final_prob);
 
 
