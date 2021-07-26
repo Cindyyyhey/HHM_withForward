@@ -12,11 +12,13 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
+import static java.lang.System.out;
+
 public class Main {
     private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     private static String songFile;
     //0 2 4 5 6 7 9
-    private static String observationFile = "src/MIDI files/firstSpecies/cp4.mid";
+    private static String observationFile = "src/MIDI files/firstSpecies/cp9.mid";
     private static final Random random = new Random();
     public static final int NOTE_ON = 0x90;
     private static String[] states = {"PU","m3","M3","P5","m6","M6","P8"};
@@ -61,19 +63,23 @@ public class Main {
         //secondSpeciesProb(transitionMatrix, emissionMatrix);
         transitionP = convertProbability(transitionMatrix, states.length, states.length);
 
-        /*
+/*
         //for notes as observed states
         int[][] emissionMatrix = getEmissionProb1();
         System.out.println("\nEmission Probabilities: ");
         print2DArray(emissionMatrix);
         double [][] emissP = convertProbability(emissionMatrix, states.length, hmNotes.size());
-         */
+
+
+ */
 
         // for melodic interval as observed states
         int[][] emissionMatrix = getEmissionProb();
         System.out.println("\nEmission Probabilities: ");
         print2DArray(emissionMatrix);
         double [][] emissP = convertProbability(emissionMatrix, states.length, hmMelodic.size());
+
+
 
         // observation file
         Sequence observationSeq = MidiSystem.getSequence(new File(observationFile));
@@ -441,6 +447,10 @@ public class Main {
                 observation[i-1] = hmMelodic.get(interval);
             }
         }
+        out.println("hello");
+        for (int i = 0; i < observation.length; i++) {
+            out.print(observation[i] + " ");
+        }
         return observation;
     }
 
@@ -463,7 +473,7 @@ public class Main {
         //convert observation in string to int
         int[] obsfake = new int[observations.length];
         for(int i = 0; i < observations.length;i++){
-            obsfake[i] = hmNotes.get(observations[i])+1;
+            obsfake[i] = hmNotes.get(observations[i]);
             System.out.print(obsfake[i]+" ");
         }
 

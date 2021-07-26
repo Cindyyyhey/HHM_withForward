@@ -7,8 +7,8 @@ import static java.lang.System.*;
 
 public class Forward {
 
-//    @param obs        ->Given observation for which likelihood has to be calculated.
-//    @param states     ->The various states HMM goes through.
+//    @param obs        ->Given observation for which likelihood has to be calculated. start at index 0
+//    @param states     ->The various states HMM goes through. 0 1 2 ...
 //    @param start_prob ->The start probability of each state.
 //    @param trans_prob ->The transition probability from state to state.
 //    @param emiss_prob ->The emission probability assosciated with each observation.
@@ -28,7 +28,7 @@ public class Forward {
 
         // Initializing the Forward Matrix
         for (int state : states) {
-            forward[0][state] = start_prob[state] * emiss_prob[state][obs[0] - 1];
+            forward[0][state] = start_prob[state] * emiss_prob[state][obs[0]];
         }
 
         for (int i = 1; i < obs.length; i++) {
@@ -39,15 +39,16 @@ public class Forward {
                     forward[i][state1] += forward[i - 1][state2] * trans_prob[state2][state1];
                     // Forward Algorithm adds up every probability calculated, takes to the maximum.
                 }
-                forward[i][state1] *= emiss_prob[state1][obs[i] - 1];
+                forward[i][state1] *= emiss_prob[state1][obs[i]];
             }
         }
 
         // To check the status of Forward Matrix.
         for (int i = 0; i < obs.length; i++) {
             for (int j = 0; j < states.length; j++) {
-                out.println(forward[i][j] + "");
+                out.print(forward[i][j] + " ");
             }
+            out.println();
         }
 
         // Calculation of final likelihood probability.
