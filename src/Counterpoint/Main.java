@@ -18,7 +18,7 @@ public class Main {
     private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     private static String songFile;
     //0 2 4 5 6 7 9
-    private static String observationFile = "src/MIDI files/firstSpecies/burg1.mid";
+    private static String observationFile = "src/MIDI files/firstSpecies/cf6.mid";
     private static final Random random = new Random();
     public static final int NOTE_ON = 0x90;
     private static String[] states = {"PU","m3","M3","P5","m6","M6","P8"};
@@ -459,7 +459,8 @@ public class Main {
     public static String[] getObservations1(int[][] observation){
         String[] obs = new String[observation[0].length];
         for(int i=0; i<observation[0].length; i++){
-            int note = (observation[1][i])%12;
+            // !!! 记得改回来 cf:0 cp:1
+            int note = (observation[0][i])%12;
             obs[i] = NOTE_NAMES[note];
         }
         return obs;
