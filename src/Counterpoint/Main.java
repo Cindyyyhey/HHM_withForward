@@ -18,7 +18,7 @@ public class Main {
     private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     private static String songFile;
     //0 2 4 5 6 7 9
-    private static String observationFile = "src/MIDI files/firstSpecies/cp9.mid";
+    private static String observationFile = "src/MIDI files/firstSpecies/burg1.mid";
     private static final Random random = new Random();
     public static final int NOTE_ON = 0x90;
     private static String[] states = {"PU","m3","M3","P5","m6","M6","P8"};
@@ -63,7 +63,7 @@ public class Main {
         //secondSpeciesProb(transitionMatrix, emissionMatrix);
         transitionP = convertProbability(transitionMatrix, states.length, states.length);
 
-/*
+
         //for notes as observed states
         int[][] emissionMatrix = getEmissionProb1();
         System.out.println("\nEmission Probabilities: ");
@@ -71,14 +71,16 @@ public class Main {
         double [][] emissP = convertProbability(emissionMatrix, states.length, hmNotes.size());
 
 
- */
 
+/*
         // for melodic interval as observed states
         int[][] emissionMatrix = getEmissionProb();
         System.out.println("\nEmission Probabilities: ");
         print2DArray(emissionMatrix);
         double [][] emissP = convertProbability(emissionMatrix, states.length, hmMelodic.size());
 
+
+ */
 
 
         // observation file
@@ -87,8 +89,8 @@ public class Main {
         System.out.println("------Forward Algorithm------");
 
         //comment one of these method call to calculate the forward probability
-        //double final_prob = getForwardProb_notes(observationSeq,startP, emissP);
-        double final_prob = getForwardProb_melodic(observationSeq,startP, emissP);
+        double final_prob = getForwardProb_notes(observationSeq,startP, emissP);
+        //double final_prob = getForwardProb_melodic(observationSeq,startP, emissP);
         System.out.println("The final probability for the given observation is  "+ final_prob);
 
 
