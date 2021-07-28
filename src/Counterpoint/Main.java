@@ -54,16 +54,16 @@ public class Main {
         setObservationHm();
         //buildAllowableIntervals();
 
-        double [] startP = convertArrayProb(getStartFreq());
+        double [] startP = convertArrayProb(getStartFreqNew());
 
-        int[][] transitionMatrix = getTransitionProb();
+        int[][] transitionMatrix = getTransitionProbNew();
 
 
         //adds 2nd species probabilities to transition and emission matrices
         //secondSpeciesProb(transitionMatrix, emissionMatrix);
-        transitionP = convertProbability(transitionMatrix, states.length, states.length);
+        transitionP = convertProbability(transitionMatrix, hmNotes.size(), hmNotes.size());
 
-
+/*
         //for notes as observed states
         int[][] emissionMatrix = getEmissionProb1();
         System.out.println("\nEmission Probabilities: ");
@@ -72,15 +72,15 @@ public class Main {
 
 
 
-/*
+
         // for melodic interval as observed states
-        int[][] emissionMatrix = getEmissionProb();
-        System.out.println("\nEmission Probabilities: ");
-        print2DArray(emissionMatrix);
-        double [][] emissP = convertProbability(emissionMatrix, states.length, hmMelodic.size());
+//        int[][] emissionMatrix = getEmissionProb();
+//        System.out.println("\nEmission Probabilities: ");
+//        print2DArray(emissionMatrix);
+//        double [][] emissP = convertProbability(emissionMatrix, states.length, hmMelodic.size());
 
 
- */
+
 
 
         // observation file
@@ -92,6 +92,9 @@ public class Main {
         double final_prob = getForwardProb_notes(observationSeq,startP, emissP);
         //double final_prob = getForwardProb_melodic(observationSeq,startP, emissP);
         System.out.println("The final probability for the given observation is  "+ final_prob);
+
+ */
+
 
 
 
@@ -303,6 +306,26 @@ public class Main {
         return freqArray;
     }
 
+    public static int [] getStartFreqNew(){
+        /*Array to track number of times a harmonic interval follows
+        the start harmonic interval. Array holds raw number data.
+        Each index in the array represents a possible harmonic interval.
+        */
+        int[] freqArray = new int[hmNotes.size()];
+        for(int i = 0;i < songs.size();i++){
+            int firstNoteInt = songs.get(i)[1][0];
+            int note = firstNoteInt % 12;
+            String firstNote = NOTE_NAMES[note];
+            freqArray[hmNotes.get(firstNote)]++;
+        }
+        System.out.println("\nStart transition frequencies: ");
+        for(int i = 0;i < freqArray.length;i++){
+            System.out.print(freqArray[i]+" ");
+        }
+        System.out.println();
+        return freqArray;
+    }
+
     //Converts an array of integers into an array of percentagres/frequwencies
     public static double[] convertArrayProb(int[] frequencies){
         double[] arrayProb = new double[frequencies.length];
@@ -349,6 +372,46 @@ public class Main {
         }
         return a;
     }
+
+    private static int[][] getTransitionProbNew(){
+        int[][] a = new int[hmNotes.size()][hmNotes.size()];
+        for(int i=0; i< songs.size(); i++){
+            int numNotes = songs.get(i)[0].length;
+            for(int j=0; j<(numNotes-1); j++){
+                int currNoteInt = songs.get(i)[1][j];
+                int nextNoteInt = songs.get(i)[1][j+1];
+
+
+                int note = currNoteInt % 12;
+                String currNote = NOTE_NAMES[note];
+
+                int notetemp = nextNoteInt % 12;
+                String nextNote = NOTE_NAMES[notetemp];
+
+
+                if(hmNotes.get(currNote)!= null && hmNotes.get(nextNote) != null){
+                    a[hmNotes.get(currNote)][hmNotes.get(nextNote)]++;
+                    /*
+                    if(nextNote==0){
+                        a[hmNotes.get(currNote)][hmNotes.get(nextNote)]=0;
+                    }
+
+                     */
+                }else{
+                    //System.out.println("\nIllegal harmonic interval " +currInterval+", "+nextInterval+" in song " + i + " and note " + j);
+                }
+            }
+        }
+        System.out.println("\nHarmonic transition frequencies: ");
+        for(int i=0; i<a.length; i++){
+            for(int j=0; j<a[i].length; j++){
+                System.out.print(a[i][j] + " ");
+            }
+            System.out.println("");
+        }
+        return a;
+    }
+
 
     //This method creates the emission table for HMM1 (notes as observed state)
     private static int[][] getEmissionProb1(){
