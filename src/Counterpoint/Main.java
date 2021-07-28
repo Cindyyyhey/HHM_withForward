@@ -63,14 +63,14 @@ public class Main {
         //secondSpeciesProb(transitionMatrix, emissionMatrix);
         transitionP = convertProbability(transitionMatrix, hmNotes.size(), hmNotes.size());
 
-/*
+
         //for notes as observed states
-        int[][] emissionMatrix = getEmissionProb1();
+        int[][] emissionMatrix = getEmissionProb1New();
         System.out.println("\nEmission Probabilities: ");
         print2DArray(emissionMatrix);
         double [][] emissP = convertProbability(emissionMatrix, states.length, hmNotes.size());
 
-
+/*
 
 
         // for melodic interval as observed states
@@ -431,6 +431,28 @@ public class Main {
                     System.out.println("Musica ficta note in CF: " + noteNameCF + " and interval: " + states[hmHarmonic.get(harmonic)]);
                 } else if(noteNameCP.length()!=1){
                     System.out.println("Musica ficta note in CP: " + noteNameCP + " and interval: " + states[hmHarmonic.get(harmonic)]);
+                }
+            }
+        }
+        return b;
+    }
+    private static int[][] getEmissionProb1New(){
+        int[][]b = new int[hmNotes.size()][states.length];
+        for(int i=0; i< songs.size(); i++){
+            for(int j=0; j<songs.get(i)[0].length; j++){
+                int harmonic = Math.abs((songs.get(i)[0][j]) - (songs.get(i)[1][j]));
+                int noteCF = (songs.get(i)[1][j])%12;
+                String noteNameCF = NOTE_NAMES[noteCF];
+                int noteCP = (songs.get(i)[0][j])%12;
+                String noteNameCP = NOTE_NAMES[noteCP];
+                if(noteNameCF.length() == 1 && noteNameCP.length() == 1){
+                    if(hmHarmonic.get(harmonic)!=null && hmNotes.get(noteNameCF)!=null){
+                        b[hmNotes.get(noteNameCF)][hmHarmonic.get(harmonic)]++;
+                    }
+                } else if(noteNameCF.length()!= 1){
+                    //System.out.println("Musica ficta note in CF: " + noteNameCF + " and interval: " + states[hmHarmonic.get(harmonic)]);
+                } else if(noteNameCP.length()!=1){
+                    //System.out.println("Musica ficta note in CP: " + noteNameCP + " and interval: " + states[hmHarmonic.get(harmonic)]);
                 }
             }
         }
