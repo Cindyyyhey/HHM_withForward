@@ -18,7 +18,7 @@ public class Main {
     private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     private static String songFile;
     //0 2 4 5 6 7 9
-    private static String observationFile = "src/MIDI files/firstSpecies/cf6.mid";
+    private static String observationFile = "src/MIDI files/firstSpecies/cp4.mid";
     private static final Random random = new Random();
     public static final int NOTE_ON = 0x90;
     private static String[] states = {"PU","m3","M3","P5","m6","M6","P8"};
@@ -70,7 +70,7 @@ public class Main {
         print2DArray(emissionMatrix);
         double [][] emissP = convertProbability(emissionMatrix, states.length, hmNotes.size());
 
-/*
+
 
 
         // for melodic interval as observed states
@@ -89,11 +89,11 @@ public class Main {
         System.out.println("------Forward Algorithm------");
 
         //comment one of these method call to calculate the forward probability
-        double final_prob = getForwardProb_notes(observationSeq,startP, emissP);
+        double final_prob = getForwardProb_noteNew(observationSeq,startP, emissP);
         //double final_prob = getForwardProb_melodic(observationSeq,startP, emissP);
         System.out.println("The final probability for the given observation is  "+ final_prob);
 
- */
+
 
 
 
@@ -515,6 +515,19 @@ public class Main {
         }
     }
 
+    public static int[] getObservationsNew(int[][] observations2DArray){
+        int[] observation = new int[observations2DArray[0].length];
+        for(int i=0; i<observations2DArray[0].length; i++){
+            int currInterval = Math.abs((observations2DArray[0][i]) - (observations2DArray[1][i]));
+            out.println(currInterval);
+            observation[i] = hmHarmonic.get(currInterval);
+        }
+        for (int i = 0; i < observation.length; i++) {
+            out.print(observation[i] + " ");
+        }
+
+        return observation;
+    }
     /*This method takes in the sequence for the example MIDI file and
     converts it into an array of Strings representing the sequence of
     melodic intervals for that example's Cantus Firmus to be used in the
@@ -574,6 +587,15 @@ public class Main {
     public static double getForwardProb_melodic(Sequence observationSeq,double [] startP,double [][] emissP){
         //convert observation in string to int
         int[] observations = getObservations(midiTo2DArray(observationSeq));
+
+        Forward obj = new Forward();
+        double final_prob = obj.compute(observations, states, startP, transitionP, emissP);
+        return final_prob;
+
+    }
+    public static double getForwardProb_noteNew(Sequence observationSeq,double [] startP,double [][] emissP){
+        //convert observation in string to int
+        int[] observations = getObservationsNew(midiTo2DArray(observationSeq));
 
         Forward obj = new Forward();
         double final_prob = obj.compute(observations, states, startP, transitionP, emissP);
