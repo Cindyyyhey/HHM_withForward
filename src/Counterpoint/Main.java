@@ -18,10 +18,10 @@ public class Main {
     private static final String[] NOTE_NAMES = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     private static String songFile;
     //0 2 4 5 6 7 9
-    private static String observationFile = "src/MIDI files/firstSpecies/cp4.mid";
+    private static String observationFile = "src/MIDI files/firstSpecies/burg10.mid";
     private static final Random random = new Random();
     public static final int NOTE_ON = 0x90;
-    private static String[] states = {"PU","m3","M3","P5","m6","M6","P8"};
+    private static String[] states = {"PU","m3","M3","P5","m6","M6","P8", "m10", "M10"};
     private static String[] states2 = {"PU", "m2u", "m2d", "M2u", "M2d", "m3u", "m3d", "M3u", "M3d", "P4u", "P4d", "P5u", "P5d", "m6u", "m6d", "M6u", "M6d", "m7u", "m7d", "M7u", "M7d", "P8u", "P8d"};
     static ArrayList<int[][]> songs = new ArrayList<>();
 //    static ArrayList<int[][]> secondSpecies = new ArrayList<>();
@@ -31,7 +31,7 @@ public class Main {
     static HashMap <Integer, Integer> hmMelodic = new HashMap <Integer,Integer>();
     static HashMap<Integer, String> hmObservation = new HashMap<Integer, String>();
     static HashMap <String, Integer> hmNotes = new HashMap <String,Integer>();
-    static double[][] transitionP = new double[states.length][states.length];
+    static double[][] transitionP = new double[hmNotes.size()][hmNotes.size()];
 
 
     public static void main(String[] args)  throws Exception{
@@ -68,7 +68,7 @@ public class Main {
         int[][] emissionMatrix = getEmissionProb1New();
         System.out.println("\nEmission Probabilities: ");
         print2DArray(emissionMatrix);
-        double [][] emissP = convertProbability(emissionMatrix, states.length, hmNotes.size());
+        double [][] emissP = convertProbability(emissionMatrix,  hmNotes.size(),states.length);
 
 
 
@@ -216,6 +216,9 @@ public class Main {
         hmHarmonic.put(8,4);
         hmHarmonic.put(9,5);
         hmHarmonic.put(12,6);
+        hmHarmonic.put(15,7);
+        hmHarmonic.put(16,8);
+
     }
 
     /*HashMap for melodic intervals. Each key is number of half steps and
@@ -520,6 +523,13 @@ public class Main {
         for(int i=0; i<observations2DArray[0].length; i++){
             int currInterval = Math.abs((observations2DArray[0][i]) - (observations2DArray[1][i]));
             out.println(currInterval);
+            if(currInterval>16){
+                currInterval-=12;
+            }
+            if(currInterval==10){
+                currInterval-=1;
+            }
+
             observation[i] = hmHarmonic.get(currInterval);
         }
         for (int i = 0; i < observation.length; i++) {
@@ -598,7 +608,8 @@ public class Main {
         int[] observations = getObservationsNew(midiTo2DArray(observationSeq));
 
         Forward obj = new Forward();
-        double final_prob = obj.compute(observations, states, startP, transitionP, emissP);
+        String [] temp = {"C","D","E","F","G","A","B"};
+        double final_prob = obj.compute(observations, temp, startP, transitionP, emissP);
         return final_prob;
 
     }
